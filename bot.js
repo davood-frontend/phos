@@ -21,17 +21,6 @@ const StartBot = () => {
         ctx.reply("Heyyyy! I'm your AI buddy. Just send me something and I'll reply :)");
     });
 
-    bot.command("stop", (ctx) => {
-        ctx.reply("Ok, I'll stop.");
-    });
-
-    bot.command("happy", (ctx) => {
-        ctx.reply("Yepeeeeey!! Such a wonderful day it is, right?");
-    });
-
-    bot.command("sad", (ctx) => {
-        ctx.reply("I told you not to press that butto... oh ok...");
-    });
 
     // Reset chat history
     bot.command("reset", (ctx) => {
