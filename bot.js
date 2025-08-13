@@ -63,14 +63,14 @@ const StartBot = () => {
             ctx.reply(aiReply);
         } catch (error) {
             console.error("Groq API Error:", error);
-            ctx.reply("ummm... can you text me a little bit later? something seems to be wrong");
+            ctx.reply("I'm gonna sleep... can you text me a little bit later");
         }
     });
 
     // Handle non-text messages
     bot.on("message", (ctx) => {
         if (!ctx.message.text) {
-            ctx.reply("Ummmm... I'm a little bit stupid and I can only understand text so...");
+            ctx.reply("Ummmm... I don't understand that format");
         }
     });
 
