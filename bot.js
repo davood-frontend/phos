@@ -1,4 +1,4 @@
-import { davidPersonality, othersPersonality } from "./botPersonality.js";
+import {phos_my_personality,phos_others_personality} from "./botPersonality.js";
 import { Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 import dotenv from "dotenv";
@@ -37,7 +37,7 @@ const StartBot = () => {
 
         // Determine personality
         const isDavid = ctx.from?.username === "Aaron_swarts";
-        const personality = isDavid ? davidPersonality : othersPersonality;
+        const personality = isDavid ? phos_my_personality : phos_others_personality;
 
         // Initialize history if not present
         if (!userHistories.has(chatId)) {
