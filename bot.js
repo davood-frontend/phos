@@ -1,10 +1,15 @@
 import { davidPersonality, othersPersonality } from "./botPersonality.js";
 import { Telegraf } from "telegraf";
-import axios from "axios";
 import { message } from "telegraf/filters";
 import dotenv from "dotenv";
+import Groq from "groq-sdk";
 
 dotenv.config();
+
+// Groq client
+const groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY
+});
 
 // Store user conversation history
 const userHistories = new Map();
@@ -34,28 +39,18 @@ const StartBot = () => {
         ctx.reply("🧠 Memory reset!");
     });
 
-    // Handle user messages
+    // Handle text messages
     bot.on(message("text"), async (ctx) => {
         const chatId = ctx.chat.id;
         const userMessage = ctx.message.text;
-        bot.on("message", (ctx) => {
-            if (!ctx.message.text) {
-                ctx.reply("Ummmm... I'm a little bit stupid and I can only understand text so...");
-                return
-            }
-        });
 
         ctx.reply("typing...");
 
-        // If user has no history yet, initialize it
-        let personality = ''
-        const isDavid = ctx.from?.username === "Aaron_swarts"
-        if (isDavid) {
-            personality = davidPersonality;
-        } else {
-            personality = othersPersonality;
-        }
+        // Determine personality
+        const isDavid = ctx.from?.username === "Aaron_swarts";
+        const personality = isDavid ? davidPersonality : othersPersonality;
 
+        // Initialize history if not present
         if (!userHistories.has(chatId)) {
             userHistories.set(chatId, [
                 { role: "system", content: personality }
@@ -66,37 +61,32 @@ const StartBot = () => {
         history.push({ role: "user", content: userMessage });
 
         try {
-            const response = await axios.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                {
-                    // model: "openai/gpt-oss-20b:free",
-                    model: "deepseek/deepseek-r1:free",
-                    messages: history
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-                        "HTTP-Referer": "https://t.me/DavidspersonalBot",
-                        "X-Title": "Telegram AI Bot",
-                        "Content-Type": "application/json"
-                    }
-                }
-            );
+            const completion = await groq.chat.completions.create({
+                model: "llama-3.1-8b-instant",
+		// model: "llama-3.3-70b-versatile",
+                messages: history,
+                temperature: 0.7
+            });
 
-            const aiReply = response.data.choices[0].message.content;
+            const aiReply = completion.choices[0]?.message?.content || "Hmm... I have no words.";
             history.push({ role: "assistant", content: aiReply });
 
             ctx.reply(aiReply);
         } catch (error) {
-            console.error("DeepSeek API Error:", error?.response?.data || error.message);
+            console.error("Groq API Error:", error);
             ctx.reply("ummm... can you text me a little bit later? something seems to be wrong");
         }
     });
 
+    // Handle non-text messages
+    bot.on("message", (ctx) => {
+        if (!ctx.message.text) {
+            ctx.reply("Ummmm... I'm a little bit stupid and I can only understand text so...");
+        }
+    });
 
     bot.launch();
     console.log("🤖 Bot launched!");
 };
 
 export { StartBot };
-
