@@ -18,7 +18,7 @@ const StartBot = () => {
     const bot = new Telegraf(process.env.BOT_TOKEN);
 
     bot.command("start", (ctx) => {
-        ctx.reply("Heyyyy! I'm your AI buddy. Just send me something and I'll reply :)");
+        ctx.reply("Hey");
     });
 
 
