@@ -1,4 +1,4 @@
-import {phos_my_personality,phos_others_personality} from "./botPersonality.js";
+import { phos_my_personality, phos_others_personality } from "./botPersonality.js";
 import { Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 import dotenv from "dotenv";
@@ -35,8 +35,8 @@ const StartBot = () => {
 
         ctx.reply("typing...");
 
-        // Determine personality
-        const isDavid = ctx.from?.username === "Aaron_swarts";
+        // write your telegram username here for the bot to recognize you
+        const isDavid = ctx.from?.username === "telegram-username";
         const personality = isDavid ? phos_my_personality : phos_others_personality;
 
         // Initialize history if not present
@@ -52,7 +52,7 @@ const StartBot = () => {
         try {
             const completion = await groq.chat.completions.create({
                 model: "llama-3.1-8b-instant",
-		// model: "llama-3.3-70b-versatile",
+                // model: "llama-3.3-70b-versatile",
                 messages: history,
                 temperature: 0.7
             });
