@@ -70,7 +70,7 @@ const StartBot = () => {
     // Handle non-text messages
     bot.on("message", (ctx) => {
         if (!ctx.message.text) {
-            ctx.reply("Ummmm... I don't understand that format");
+            ctx.reply("Ummmm... I only understand text format");
         }
     });
 
