@@ -33,8 +33,6 @@ const StartBot = () => {
         const chatId = ctx.chat.id;
         const userMessage = ctx.message.text;
 
-        ctx.reply("typing...");
-
         // write your telegram username here for the bot to recognize you
         const isDavid = ctx.from?.username === "telegram-username";
         const personality = isDavid ? phos_my_personality : phos_others_personality;
