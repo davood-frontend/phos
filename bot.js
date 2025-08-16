@@ -14,13 +14,14 @@ const groq = new Groq({
 // Store user conversation history
 const userHistories = new Map();
 
+const MAX_HISTORY = 10; // keep only last 10 messages (excluding system)
+
 const StartBot = () => {
     const bot = new Telegraf(process.env.BOT_TOKEN);
 
     bot.command("start", (ctx) => {
         ctx.reply("Hey");
     });
-
 
     // Reset chat history
     bot.command("reset", (ctx) => {
@@ -33,7 +34,7 @@ const StartBot = () => {
         const chatId = ctx.chat.id;
         const userMessage = ctx.message.text;
 
-        // write your telegram username here for the bot to recognize you
+        // Check identity
         const isDavid = ctx.from?.username === "telegram-username";
         const personality = isDavid ? phos_my_personality : phos_others_personality;
 
@@ -45,17 +46,28 @@ const StartBot = () => {
         }
 
         const history = userHistories.get(chatId);
+
+        // Add user message
         history.push({ role: "user", content: userMessage });
+
+        // Trim history to keep only last N messages (excluding system)
+        if (history.length > MAX_HISTORY + 1) {
+            // keep system at [0], trim older entries
+            const systemMsg = history[0];
+            const recent = history.slice(-MAX_HISTORY);
+            userHistories.set(chatId, [systemMsg, ...recent]);
+        }
 
         try {
             const completion = await groq.chat.completions.create({
                 model: "llama-3.1-8b-instant",
-                // model: "llama-3.3-70b-versatile",
-                messages: history,
+                messages: userHistories.get(chatId),
                 temperature: 0.7
             });
 
             const aiReply = completion.choices[0]?.message?.content || "Hmm... I have no words.";
+
+            // Add assistant reply
             history.push({ role: "assistant", content: aiReply });
 
             ctx.reply(aiReply);
